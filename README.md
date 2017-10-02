@@ -6,11 +6,15 @@ Protocol detector based on yara
 ## Command Line
 
 
+Analyze pcap:
+```
 ProtocolDetector -p example.pcap
+```
 
-or
-
+Analyze iface (real-time):
+```
 ProtocolDetector -i eth0
+```
 
 Example output:
 
