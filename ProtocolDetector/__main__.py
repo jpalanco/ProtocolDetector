@@ -54,6 +54,7 @@ def main():
 
 
     if mode == 'pcap-file':
+        #analyze_pcap(pcap_file, network_mode='socks_proxy')
         analyze_pcap(pcap_file)
     else:
         analyze_interface(iface)
