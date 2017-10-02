@@ -12,7 +12,7 @@ setup(
     version='1.0',
     packages=['ProtocolDetector'],
     url='https://github.com/jpalanco/ProtocolDetector',
-    license='BSD',
+    license='MIT',
     author='jpalanco',
     author_email='jose.palanco@drainware.com',
     description='',

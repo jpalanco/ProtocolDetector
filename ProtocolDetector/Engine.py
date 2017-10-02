@@ -52,6 +52,6 @@ def detect_protocol(buf):
         buff = tcp.data
         matches = check_yara(buff)
         if matches is not None:
-          print matches
+          return matches
     except AttributeError:
         print 'DEBUG: No payload'
