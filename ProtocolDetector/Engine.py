@@ -29,6 +29,7 @@
 
 
 import dpkt
+import pcapy
 import yara
 import os
 import socket

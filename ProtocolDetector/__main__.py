@@ -25,8 +25,6 @@
 #=============================================================================
 #
 
-import dpkt
-import pcapy
 import sys
 import struct
 import argparse
