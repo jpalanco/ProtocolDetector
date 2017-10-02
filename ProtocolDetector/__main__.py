@@ -27,39 +27,12 @@
 
 import dpkt
 import pcapy
-import yara
 import sys
 import struct
 import argparse
-import os
 
+from Engine import *
 
-def check_yara(buf):
-#  print buf
-#  for character in buf:
-#    sys.stdout.write(character.encode('hex'))
-#  sys.stdout.flush()
-#  print ''
-  rules = yara.compile(filepath=os.path.dirname(__file__)+ os.sep + 'rules/index.yar')
-  try:
-    matches = rules.match(data=buf)
-    if matches:
-        return matches
-  except TypeError:
-    pass
-
-def detect_protocol(buf):
-    eth = dpkt.ethernet.Ethernet(buf)
-    ip=eth.data
-    tcp=ip.data 
-    try:
-        #print dir(tcp)
-        buff = tcp.data
-        matches = check_yara(buff)
-        if matches is not None:
-          print matches
-    except AttributeError:
-        print 'DEBUG: No payload'
 
 def main():
 
