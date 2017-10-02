@@ -33,10 +33,7 @@ import argparse
 
 from Engine import *
 
-def perform_check(buf):
-    protocol = detect_protocol(buf)
-    if protocol is not None:
-        print protocol
+
 
 def main():
 
@@ -57,18 +54,9 @@ def main():
 
 
     if mode == 'pcap-file':
-        pcap_file = open(pcap_file)
-        pcap=dpkt.pcap.Reader(pcap_file)
-        for ts, buf in pcap:
-            perform_check(buf)
+        analyze_pcap(pcap_file)
     else:
-        cap=pcapy.open_live(iface,100000,1,0)
-        (header,payload)=cap.next()
-        buf = str(payload)
-        while header:
-            perform_check(buf)
-            # i need to know whether it is a tcp or  a udp packet here!!!
-            (header,payload)=cap.next()
+        analyze_interface(iface)
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,4 @@
-#from distutils.core import setup
-from setuptools import setup
+from setuptools import setup, find_packages
 
 from pip.req import parse_requirements
 
@@ -10,7 +9,7 @@ reqs = [str(ir.req) for ir in install_reqs]
 setup(
     name='ProtocolDetector',
     version='1.0',
-    packages=['ProtocolDetector'],
+    packages=find_packages(),
     url='https://github.com/jpalanco/ProtocolDetector',
     license='MIT',
     author='jpalanco',

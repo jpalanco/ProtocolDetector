@@ -24,9 +24,14 @@
 #
 #=============================================================================
 #
+
+
+
+
 import dpkt
 import yara
 import os
+import socket
 
 
 def check_yara(buf):
@@ -52,6 +57,31 @@ def detect_protocol(buf):
         buff = tcp.data
         matches = check_yara(buff)
         if matches is not None:
-          return matches
+          src_ip = socket.inet_ntoa(ip.src)
+          dst_ip = socket.inet_ntoa(ip.dst)
+          return { 'protocols' : matches, 'dport': tcp.dport, 'sport': tcp.dport, 'src': src_ip, 'dst': dst_ip  }
     except AttributeError:
         print 'DEBUG: No payload'
+
+
+def perform_check(buf):
+    protocol = detect_protocol(buf)
+    if protocol is not None:
+        print protocol
+
+
+def analyze_pcap(pcap_file):
+    pcap_file = open(pcap_file)
+    pcap=dpkt.pcap.Reader(pcap_file)
+    for ts, buf in pcap:
+        perform_check(buf)
+
+
+def analyze_interface(iface):
+    cap=pcapy.open_live(iface,100000,1,0)
+    (header,payload)=cap.next()
+    buf = str(payload)
+    while header:
+        perform_check(buf)
+        # i need to know whether it is a tcp or  a udp packet here!!!
+        (header,payload)=cap.next()
