@@ -34,6 +34,7 @@ import os
 import socket
 import struct
 
+#FIXME: Avoid compiling rules all the time
 def check_yara(buf):
 #  print buf
 #  for character in buf:
