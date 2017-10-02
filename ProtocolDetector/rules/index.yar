@@ -6,4 +6,4 @@ include "./smb.yar"
 include "./ssh.yar"
 include "./dnp3.yar"
 include "./darkcomet.yar"
-
+include "./stratum.yar"
