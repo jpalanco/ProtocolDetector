@@ -3,6 +3,13 @@
 Protocol detector based on yara
 
 
+Install:
+```
+sudo pip install git+git://github.com/jpalanco/ProtocolDetector.git
+```
+
+
+
 ## Command Line
 
 
