@@ -35,7 +35,7 @@ pcap_path='dump.pcap'
 pcap_file = open(pcap_path)
 pcap=dpkt.pcap.Reader(pcap_file)
 for ts, buf in pcap:
-        results = perform_check(buf, socks_proxy=True, pcap_path=pcap_path )
+        results = perform_check(buf, pcap_path=pcap_path )
         print results
 ```
 
