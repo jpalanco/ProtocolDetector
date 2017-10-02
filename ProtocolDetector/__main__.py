@@ -3,15 +3,15 @@
 #
 #=============================================================================
 #
-# File Name         : main.py
-# Author            : Jose Ramon Palanco   <jose.palanco@dinoflux.com>,
+# File Name         : __main__.py
+# Author            : Jose Ramon Palanco   <jose.palanco@drainware.com>,
 # Creation Date     : September 2017
 #
 #
 #
 #=============================================================================
 #
-# PRODUCT           : protocol_detector
+# PRODUCT           : ProtocolDetector
 #
 # MODULE            : 
 #
@@ -31,6 +31,7 @@ import yara
 import sys
 import struct
 import argparse
+import os
 
 
 def check_yara(buf):
@@ -39,7 +40,7 @@ def check_yara(buf):
 #    sys.stdout.write(character.encode('hex'))
 #  sys.stdout.flush()
 #  print ''
-  rules = yara.compile(filepath='rules/index.yar')
+  rules = yara.compile(filepath=os.path.dirname(__file__)+ os.sep + 'rules/index.yar')
   try:
     matches = rules.match(data=buf)
     if matches:
@@ -60,34 +61,37 @@ def detect_protocol(buf):
     except AttributeError:
         print 'DEBUG: No payload'
 
+def main():
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--interface', type=str, help='Interface', required=False)
-parser.add_argument('-p', '--pcapfile', type=str, help='PCAP file path', required=False)
-args = parser.parse_args()
-mode = 'default'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--interface', type=str, help='Interface', required=False)
+    parser.add_argument('-p', '--pcapfile', type=str, help='PCAP file path', required=False)
+    args = parser.parse_args()
+    mode = 'default'
 
-if not args.interface:
-    mode = 'pcap-file'
-    if not args.pcapfile:
-        print 'You need to provide or interface or pcapfile, please check options with --help'
-        sys.exit(-1)
+    if not args.interface:
+        mode = 'pcap-file'
+        if not args.pcapfile:
+            print 'You need to provide or interface or pcapfile, please check options with --help'
+            sys.exit(-1)
 
-pcap_file = args.pcapfile
-iface = args.interface
+    pcap_file = args.pcapfile
+    iface = args.interface
 
 
-if mode == 'pcap-file':
-    pcap_file = open(pcap_file)
-    pcap=dpkt.pcap.Reader(pcap_file)
-    for ts, buf in pcap:
-        detect_protocol(buf)
-else:
-    cap=pcapy.open_live(iface,100000,1,0)
-    (header,payload)=cap.next()
-    buf = str(payload)
-    while header:
-        detect_protocol(buf)
-        # i need to know whether it is a tcp or  a udp packet here!!!
+    if mode == 'pcap-file':
+        pcap_file = open(pcap_file)
+        pcap=dpkt.pcap.Reader(pcap_file)
+        for ts, buf in pcap:
+            detect_protocol(buf)
+    else:
+        cap=pcapy.open_live(iface,100000,1,0)
         (header,payload)=cap.next()
+        buf = str(payload)
+        while header:
+            detect_protocol(buf)
+            # i need to know whether it is a tcp or  a udp packet here!!!
+            (header,payload)=cap.next()
 
+if __name__ == "__main__":
+    main()
