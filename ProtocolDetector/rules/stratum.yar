@@ -13,5 +13,5 @@ rule stratum : protocols
     $method4 = "mining.submit"
 
   condition:
-    $param* and any of $method*
+    all of ($param*) and 1 of ($method*)
 }
