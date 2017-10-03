@@ -35,7 +35,6 @@ import os
 import socket
 import struct
 
-#FIXME: Avoid compiling rules all the time
 def check_yara(rules, buf):
 #  print buf
 #  for character in buf:
@@ -46,34 +45,63 @@ def check_yara(rules, buf):
     matches = rules.match(data=buf)
     if matches:
         return matches
-  except TypeError:
+    else:
+        return []
+  except TypeError as e:
     pass
 
 def detect_protocol(rules, buf):
+    ptype = None
+    data_buf = None
+    dport = None
+    sport = None
+
+
     try:
         eth = dpkt.ethernet.Ethernet(buf)
         ip=eth.data
-        tcp=ip.data
-        #print dir(tcp)
-        buff = tcp.data
-        matches = check_yara(rules, buff)
-        ptype = None
+
+
+        if type(ip.data) == dpkt.icmp.ICMP:
+            return
+
         if type(ip.data) == dpkt.tcp.TCP:
             ptype = 'tcp'
+            tcp=ip.data
+            data_buf = tcp.data
+            dport = tcp.dport
+            sport = tcp.sport
+
         elif type(ip.data) == dpkt.udp.UDP:
             ptype = 'udp'
-        if matches is not None:
-          src_ip = socket.inet_ntoa(ip.src)
-          dst_ip = socket.inet_ntoa(ip.dst)
-        else:
+            udp=ip.data
+            data_buf = udp.data
+            dport = udp.dport
+            sport = udp.sport
+
+        matches = check_yara(rules, data_buf)
+
+
+        try:
+            src_ip = socket.inet_ntoa(ip.src)
+            dst_ip = socket.inet_ntoa(ip.dst)
+        except socket.error:
+            return None
+
+        if matches is None:
+            matches = []
             matches.append(ptype)
-        return { 'protocols' : matches, 'dport': tcp.dport, 'sport': tcp.sport, 'src': src_ip, 'dst': dst_ip  }
+
+        if len(matches)<1:
+            matches.append(ptype)
+
+        return { 'protocols' : matches, 'dport': dport, 'sport': sport, 'src': src_ip, 'dst': dst_ip  }
     except AttributeError:
         pass
     except dpkt.dpkt.NeedData:
         pass
 
-# FIXME: is not optimal parse everything all the time
+# FIXME: is not optimal parse everything all the time. We should handle sessions
 def resolve_socks_proxy(pcap_path, sport):
     pcap_file = open(pcap_path)
     pcap=dpkt.pcap.Reader(pcap_file)

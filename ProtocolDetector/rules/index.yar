@@ -1,5 +1,7 @@
+
+include "./dns.yar"
 include "./http.yar"
-include "./tls.yar"
+include "./ssl.yar"
 include "./irc.yar"
 include "./smtp.yar"
 include "./smb.yar"
