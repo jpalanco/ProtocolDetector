@@ -81,7 +81,6 @@ def detect_protocol(rules, buf):
 
         matches = check_yara(rules, data_buf)
 
-
         try:
             src_ip = socket.inet_ntoa(ip.src)
             dst_ip = socket.inet_ntoa(ip.dst)
@@ -112,7 +111,7 @@ def resolve_socks_proxy(pcap_path, sport):
             continue
         tcp=ip.data
         if tcp.dport == sport:
-            # IMPORTAND: This is not a bug, we recover src as dst
+            # IMPORTANT: This is not a bug, we recover src as dst
             return { 'dport' : tcp.sport, 'dst': socket.inet_ntoa(ip.src) }
 
 
