@@ -4,7 +4,7 @@
 #=============================================================================
 #
 # File Name         : __main__.py
-# Author            : Jose Ramon Palanco   <jose.palanco@drainware.com>,
+# Author            : Jose Ramon Palanco   <jose.palanco@dinoflux.com>,
 # Creation Date     : September 2017
 #
 #

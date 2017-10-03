@@ -4,7 +4,7 @@
 #=============================================================================
 #
 # File Name         : Engine.py
-# Author            : Jose Ramon Palanco   <jose.palanco@drainware.com>,
+# Author            : Jose Ramon Palanco   <jose.palanco@dinoflux.com>,
 # Creation Date     : October 2017
 #
 #

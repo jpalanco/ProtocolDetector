@@ -11,27 +11,6 @@ include "./darkcomet.yar"
 include "./stratum.yar"
 include "./njrat.yar"
 include "./teamviewer.yar"
+include "./vnc.yar"
+include "./tftp.yar"
 
-
-/*
-
-TODO
-
-eth:ethertype:ip:tcp:smpp
-eth:ethertype:ip:tcp:tds
-eth:ethertype:ip:tcp:time
-eth:ethertype:ip:tcp:vnc
-eth:ethertype:ip:udp:bootp
-eth:ethertype:ip:udp:classicstun
-eth:ethertype:ip:tcp:dcerpc
-eth:ethertype:ip:tcp:fmtp
-eth:ethertype:ip:tcp:dns
-eth:ethertype:ip:udp:dns
-eth:ethertype:ip:udp:echo
-eth:ethertype:ip:udp:nbns
-eth:ethertype:ip:udp:ntp
-eth:ethertype:ip:udp:quic
-eth:ethertype:ip:udp:ssdp
-eth:ethertype:ip:udp:tftp
-eth:ethertype:ip:udp:time
-*/
