@@ -8,7 +8,7 @@ reqs = [str(ir.req) for ir in install_reqs]
 
 setup(
     name='ProtocolDetector',
-    version='1.0',
+    version='1.0.1',
     packages=find_packages(),
     url='https://github.com/jpalanco/ProtocolDetector',
     license='MIT',

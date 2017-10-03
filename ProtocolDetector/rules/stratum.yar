@@ -15,3 +15,20 @@ rule stratum : protocols
   condition:
     all of ($param*) and 1 of ($method*)
 }
+
+rule monero_stratum : protocols
+{
+  meta:
+    author = "Jose Ramon Palanco <jose.palanco@dinoflux.com>"
+    description = "Monero Stratum Protocol"
+  strings:
+    $param0 = "jsonrpc"
+    $param1 = "id"
+    $param2 = "method"
+    $param3 = "params"
+    $method1 = "login"
+    $method2 = "job"
+    $method3 = "submit"
+  condition:
+    all of ($param*) and 1 of ($method*)
+}

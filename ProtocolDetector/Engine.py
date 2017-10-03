@@ -36,13 +36,12 @@ import socket
 import struct
 
 #FIXME: Avoid compiling rules all the time
-def check_yara(buf):
+def check_yara(rules, buf):
 #  print buf
 #  for character in buf:
 #    sys.stdout.write(character.encode('hex'))
 #  sys.stdout.flush()
 #  print ''
-  rules = yara.compile(filepath=os.path.dirname(__file__)+ os.sep + 'rules/index.yar')
   try:
     matches = rules.match(data=buf)
     if matches:
@@ -50,20 +49,29 @@ def check_yara(buf):
   except TypeError:
     pass
 
-def detect_protocol(buf):
-    eth = dpkt.ethernet.Ethernet(buf)
-    ip=eth.data
-    tcp=ip.data
+def detect_protocol(rules, buf):
     try:
+        eth = dpkt.ethernet.Ethernet(buf)
+        ip=eth.data
+        tcp=ip.data
         #print dir(tcp)
         buff = tcp.data
-        matches = check_yara(buff)
+        matches = check_yara(rules, buff)
+        ptype = None
+        if type(ip.data) == dpkt.tcp.TCP:
+            ptype = 'tcp'
+        elif type(ip.data) == dpkt.udp.UDP:
+            ptype = 'udp'
         if matches is not None:
           src_ip = socket.inet_ntoa(ip.src)
           dst_ip = socket.inet_ntoa(ip.dst)
-          return { 'protocols' : matches, 'dport': tcp.dport, 'sport': tcp.sport, 'src': src_ip, 'dst': dst_ip  }
+        else:
+            matches.append(ptype)
+        return { 'protocols' : matches, 'dport': tcp.dport, 'sport': tcp.sport, 'src': src_ip, 'dst': dst_ip  }
     except AttributeError:
-        print 'DEBUG: No payload'
+        pass
+    except dpkt.dpkt.NeedData:
+        pass
 
 # FIXME: is not optimal parse everything all the time
 def resolve_socks_proxy(pcap_path, sport):
@@ -72,7 +80,7 @@ def resolve_socks_proxy(pcap_path, sport):
     for ts, buf in pcap:
         eth = dpkt.ethernet.Ethernet(buf)
         ip=eth.data
-        if type(ip.data) != dpkt.tcp.TCP:
+        if type(ip.data) != dpkt.tcp.TCP or type(ip.data) != dpkt.udp.UDP:
             continue
         tcp=ip.data
         if tcp.dport == sport:
@@ -80,8 +88,8 @@ def resolve_socks_proxy(pcap_path, sport):
             return { 'dport' : tcp.sport, 'dst': socket.inet_ntoa(ip.src) }
 
 
-def perform_check(buf, socks_proxy=False, pcap_path=None):
-    protocol_details = detect_protocol(buf)
+def perform_check(rules, buf, socks_proxy=False, pcap_path=None):
+    protocol_details = detect_protocol(rules, buf)
     if protocol_details == None:
         return None
     if socks_proxy:
@@ -90,24 +98,29 @@ def perform_check(buf, socks_proxy=False, pcap_path=None):
         protocol_details['dst'] = socks_details['dst']
     return protocol_details
 
+def get_rules():
+    rules = yara.compile(filepath=os.path.dirname(__file__)+ os.sep + 'rules/index.yar')
+    return rules
 
 def analyze_pcap(pcap_path, mode=None):
+    rules = get_rules()
     pcap_file = open(pcap_path)
     pcap=dpkt.pcap.Reader(pcap_file)
     for ts, buf in pcap:
         if mode == 'socks_proxy':
-            results = perform_check(buf, socks_proxy=True, pcap_path=pcap_path )
+            results = perform_check(rules, buf, socks_proxy=True, pcap_path=pcap_path )
         else:
-            results = perform_check(buf)
+            results = perform_check(rules, buf)
 
         if results is not None:
             print results
 
 def analyze_interface(iface):
+    rules = get_rules()
     cap=pcapy.open_live(iface,100000,1,0)
     (header,payload)=cap.next()
     buf = str(payload)
     while header:
-        perform_check(buf)
+        perform_check(rules, buf)
         # i need to know whether it is a tcp or  a udp packet here!!!
         (header,payload)=cap.next()
