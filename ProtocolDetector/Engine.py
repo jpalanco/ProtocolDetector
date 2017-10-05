@@ -125,7 +125,7 @@ def perform_check(rules, buf, socks_proxy=False, pcap_path=None):
             protocol_details['dport'] = socks_details['dport']
             protocol_details['dst'] = socks_details['dst']
         except TypeError:
-            pass
+            return None
     return protocol_details
 
 def get_rules():
