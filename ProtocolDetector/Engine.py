@@ -88,8 +88,9 @@ def detect_protocol(rules, buf):
             return None
 
         if matches is None:
-            matches = []
-            matches.append(ptype)
+            #matches = []
+            #matches.append(ptype)
+            return None
 
         if len(matches)<1:
             matches.append(ptype)
