@@ -120,9 +120,12 @@ def perform_check(rules, buf, socks_proxy=False, pcap_path=None):
     if protocol_details == None:
         return None
     if socks_proxy:
-        socks_details = resolve_socks_proxy(pcap_path, protocol_details['sport'])
-        protocol_details['dport'] = socks_details['dport']
-        protocol_details['dst'] = socks_details['dst']
+        try:
+            socks_details = resolve_socks_proxy(pcap_path, protocol_details['sport'])
+            protocol_details['dport'] = socks_details['dport']
+            protocol_details['dst'] = socks_details['dst']
+        except TypeError:
+            pass
     return protocol_details
 
 def get_rules():
