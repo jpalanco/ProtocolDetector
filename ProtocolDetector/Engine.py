@@ -43,8 +43,12 @@ def check_yara(rules, buf):
 #  print ''
   try:
     matches = rules.match(data=buf)
-    if matches:
-        return matches
+    results = []
+    for match in matches:
+        results.append(match.rule)
+
+    if results:
+        return results
     else:
         return []
   except TypeError as e:
@@ -80,6 +84,7 @@ def detect_protocol(rules, buf):
             sport = udp.sport
 
         matches = check_yara(rules, data_buf)
+
 
         try:
             src_ip = socket.inet_ntoa(ip.src)
