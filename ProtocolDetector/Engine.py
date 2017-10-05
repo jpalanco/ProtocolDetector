@@ -87,13 +87,14 @@ def detect_protocol(rules, buf):
         except socket.error:
             return None
 
-        if matches is None:
-            #matches = []
-            #matches.append(ptype)
-            return None
+        #if matches is None:
+        #    matches = []
+        #    matches.append(ptype)
 
         if len(matches)<1:
-            matches.append(ptype)
+            return None
+            #matches.append(ptype)
+
 
         return { 'protocols' : matches, 'dport': dport, 'sport': sport, 'src': src_ip, 'dst': dst_ip  }
     except AttributeError:
