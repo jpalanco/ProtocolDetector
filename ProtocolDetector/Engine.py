@@ -107,12 +107,12 @@ def resolve_socks_proxy(pcap_path, sport):
     for ts, buf in pcap:
         eth = dpkt.ethernet.Ethernet(buf)
         ip=eth.data
-        if type(ip.data) != dpkt.tcp.TCP or type(ip.data) != dpkt.udp.UDP:
-            continue
-        tcp=ip.data
-        if tcp.dport == sport:
-            # IMPORTANT: This is not a bug, we recover src as dst
-            return { 'dport' : tcp.sport, 'dst': socket.inet_ntoa(ip.src) }
+        if type(ip.data) == dpkt.tcp.TCP or type(ip.data) == dpkt.udp.UDP:
+            tcp=ip.data
+            if tcp.dport == sport:
+                # IMPORTANT: This is not a bug, we recover src as dst
+                res = { 'dport' : tcp.sport, 'dst': socket.inet_ntoa(ip.src) }
+                return res
 
 
 def perform_check(rules, buf, socks_proxy=False, pcap_path=None):
@@ -135,7 +135,12 @@ def get_rules():
 def analyze_pcap(pcap_path, mode=None):
     rules = get_rules()
     pcap_file = open(pcap_path)
-    pcap=dpkt.pcap.Reader(pcap_file)
+
+    try:
+        pcap=dpkt.pcap.Reader(pcap_file)
+    except dpkt.dpkt.NeedData:
+        return
+
     for ts, buf in pcap:
         if mode == 'socks_proxy':
             results = perform_check(rules, buf, socks_proxy=True, pcap_path=pcap_path )
