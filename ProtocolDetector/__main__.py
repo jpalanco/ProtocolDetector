@@ -38,7 +38,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--interface', type=str, help='Interface', required=False)
     parser.add_argument('-p', '--pcapfile', type=str, help='PCAP file path', required=False)
-    parser.add_argument('-d', '--socks-proxy', help='Resolve socks proxy', action="store_true", required=False)
+    parser.add_argument('-s', '--socks-proxy', help='Resolve socks proxy', action="store_true", required=False)
     args = parser.parse_args()
     mode = 'default'
     socks_proxy = False
@@ -60,12 +60,12 @@ def main():
     if mode == 'pcap-file':
         #analyze_pcap(pcap_file, network_mode='socks_proxy')
         if socks_proxy:
-            analyze_pcap(pcap_file, socks_proxy=True)
+            analyze_pcap(pcap_file, mode='socks_proxy')
         else:
             analyze_pcap(pcap_file)
     else:
         if socks_proxy:
-            analyze_pcap(pcap_file, socks_proxy=True)
+            analyze_pcap(pcap_file, mode='socks_proxy')
         else:
             analyze_pcap(pcap_file)
 
