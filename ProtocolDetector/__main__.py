@@ -39,35 +39,36 @@ def main():
     parser.add_argument('-i', '--interface', type=str, help='Interface', required=False)
     parser.add_argument('-p', '--pcapfile', type=str, help='PCAP file path', required=False)
     parser.add_argument('-s', '--socks-proxy', help='Resolve socks proxy', action="store_true", required=False)
+    parser.add_argument('-rl', '--remove-local', help='Remove local network sources', action="store_true", required=False)
+
     args = parser.parse_args()
     mode = 'default'
-    socks_proxy = False
+
+    options = {'mode': 'default', 'socks_proxy': False, 'remove_local' : False, 'pcap_path': None, 'iface': None, 'rules' : None }
+
 
     if args.socks_proxy:
-        socks_proxy = True
+        options['socks_proxy'] = True
+
+    if args.remove_local:
+        options['remove_local'] = True
 
 
     if not args.interface:
-        mode = 'pcap-file'
+        options['mode'] = 'pcap-file'
         if not args.pcapfile:
             print 'You need to provide or interface or pcapfile, please check options with --help'
             sys.exit(-1)
 
-    pcap_file = args.pcapfile
-    iface = args.interface
+    options['pcap_path'] = args.pcapfile
+    options['iface'] = args.interface
+    options['rules'] = get_rules()
 
 
-    if mode == 'pcap-file':
-        #analyze_pcap(pcap_file, network_mode='socks_proxy')
-        if socks_proxy:
-            analyze_pcap(pcap_file, mode='socks_proxy')
-        else:
-            analyze_pcap(pcap_file)
+    if options['mode'] == 'pcap-file':
+        analyze_pcap(options)
     else:
-        if socks_proxy:
-            analyze_pcap(pcap_file, mode='socks_proxy')
-        else:
-            analyze_pcap(pcap_file)
+        analyze_interface(options)
 
 if __name__ == "__main__":
     main()

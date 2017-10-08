@@ -33,7 +33,7 @@ import pcapy
 import yara
 import os
 import socket
-import struct
+from IPy import IP
 
 def check_yara(rules, buf):
 #  print buf
@@ -54,7 +54,8 @@ def check_yara(rules, buf):
   except TypeError as e:
     pass
 
-def detect_protocol(rules, buf):
+def detect_protocol(buf, options):
+    rules = options['rules']
     ptype = None
     data_buf = None
     dport = None
@@ -100,6 +101,10 @@ def detect_protocol(rules, buf):
             return None
             #matches.append(ptype)
 
+        if options['remove_local']:
+            ip = IP(dst_ip)
+            if ip.iptype() == 'PRIVATE':
+                return None
 
         return { 'protocols' : matches, 'dport': dport, 'sport': sport, 'src': src_ip, 'dst': dst_ip  }
     except AttributeError:
@@ -108,11 +113,15 @@ def detect_protocol(rules, buf):
         pass
 
 # FIXME: is not optimal parse everything all the time. We should handle sessions
-def resolve_socks_proxy(pcap_path, sport):
+def resolve_socks_proxy(sport, options):
+    pcap_path = options['pcap_path']
     pcap_file = open(pcap_path)
     pcap=dpkt.pcap.Reader(pcap_file)
     for ts, buf in pcap:
-        eth = dpkt.ethernet.Ethernet(buf)
+        try:
+            eth = dpkt.ethernet.Ethernet(buf)
+        except dpkt.dpkt.NeedData:
+            continue
         ip=eth.data
         if type(ip.data) == dpkt.tcp.TCP or type(ip.data) == dpkt.udp.UDP:
             tcp=ip.data
@@ -121,14 +130,17 @@ def resolve_socks_proxy(pcap_path, sport):
                 res = { 'dport' : tcp.sport, 'dst': socket.inet_ntoa(ip.src) }
                 return res
 
+def perform_check(buf, options):
+    rules = options['rules']
+    socks_proxy = options['socks_proxy']
+    pcap_path = options['pcap_path']
 
-def perform_check(rules, buf, socks_proxy=False, pcap_path=None):
-    protocol_details = detect_protocol(rules, buf)
+    protocol_details = detect_protocol(buf, options)
     if protocol_details == None:
         return None
     if socks_proxy:
         try:
-            socks_details = resolve_socks_proxy(pcap_path, protocol_details['sport'])
+            socks_details = resolve_socks_proxy(protocol_details['sport'], options)
             protocol_details['dport'] = socks_details['dport']
             protocol_details['dst'] = socks_details['dst']
         except TypeError:
@@ -139,30 +151,25 @@ def get_rules():
     rules = yara.compile(filepath=os.path.dirname(__file__)+ os.sep + 'rules/index.yar')
     return rules
 
-def analyze_pcap(pcap_path, mode=None):
-    rules = get_rules()
+def analyze_pcap(options):
+    pcap_path = options['pcap_path']
     pcap_file = open(pcap_path)
-
     try:
         pcap=dpkt.pcap.Reader(pcap_file)
     except dpkt.dpkt.NeedData:
         return
 
     for ts, buf in pcap:
-        if mode == 'socks_proxy':
-            results = perform_check(rules, buf, socks_proxy=True, pcap_path=pcap_path )
-        else:
-            results = perform_check(rules, buf)
-
+        results = perform_check(buf, options )
         if results is not None:
             print results
 
-def analyze_interface(iface):
-    rules = get_rules()
+def analyze_interface(options):
+    iface = options['iface']
     cap=pcapy.open_live(iface,100000,1,0)
     (header,payload)=cap.next()
     buf = str(payload)
     while header:
-        perform_check(rules, buf)
+        perform_check(buf, options)
         # i need to know whether it is a tcp or  a udp packet here!!!
         (header,payload)=cap.next()

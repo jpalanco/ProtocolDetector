@@ -34,16 +34,25 @@ Example output:
 
 ```
 
-from ProtocolDetector.Engine import *
+from ProtocolDetector.Engine import get_rules, perform_check
 import dpkt
 
 
 pcap_path='dump.pcap'
 pcap_file = open(pcap_path)
 pcap=dpkt.pcap.Reader(pcap_file)
-rules = get_rules() # you can load your own rules
+
+options = { 'mode': 'default',
+            'socks_proxy': False,
+            'remove_local' : False,
+            'pcap_path': pcap_path,
+            'iface': None,
+            'rules' : get_rules() }
+
+
+
 for ts, buf in pcap:
-        results = perform_check(rules, buf, pcap_path=pcap_path )
+        results = perform_check(buf, options )
         print results
 ```
 
