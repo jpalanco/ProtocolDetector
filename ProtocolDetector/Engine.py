@@ -93,15 +93,12 @@ def detect_protocol(buf, options):
         except socket.error:
             return None
 
-        #if matches is None:
-        #    matches = []
-        #    matches.append(ptype)
 
         if len(matches)<1:
-            return None
-            #matches.append(ptype)
+            #return None
+            matches.append(ptype)
 
-        if options['remove_local']:
+        if not options['socks_proxy'] and options['remove_local']:
             ip = IP(dst_ip)
             if ip.iptype() == 'PRIVATE':
                 return None
@@ -125,9 +122,16 @@ def resolve_socks_proxy(sport, options):
         ip=eth.data
         if type(ip.data) == dpkt.tcp.TCP or type(ip.data) == dpkt.udp.UDP:
             tcp=ip.data
+
+
             if tcp.dport == sport:
                 # IMPORTANT: This is not a bug, we recover src as dst
                 res = { 'dport' : tcp.sport, 'dst': socket.inet_ntoa(ip.src) }
+            if options['remove_local']:
+                ip = IP(res['dst'])
+                if ip.iptype() == 'PRIVATE':
+                    return None
+
                 return res
 
 def perform_check(buf, options):
