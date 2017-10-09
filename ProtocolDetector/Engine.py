@@ -127,10 +127,10 @@ def resolve_socks_proxy(sport, options):
             if tcp.dport == sport:
                 # IMPORTANT: This is not a bug, we recover src as dst
                 res = { 'dport' : tcp.sport, 'dst': socket.inet_ntoa(ip.src) }
-            if options['remove_local']:
-                ip = IP(res['dst'])
-                if ip.iptype() == 'PRIVATE':
-                    return None
+                if options['remove_local']:
+                    ip = IP(res['dst'])
+                    if ip.iptype() == 'PRIVATE':
+                        continue
 
                 return res
 
