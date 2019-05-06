@@ -57,7 +57,7 @@ def main():
     if not args.interface:
         options['mode'] = 'pcap-file'
         if not args.pcapfile:
-            print 'You need to provide or interface or pcapfile, please check options with --help'
+            print('You need to provide or interface or pcapfile, please check options with --help')
             sys.exit(-1)
 
     options['pcap_path'] = args.pcapfile

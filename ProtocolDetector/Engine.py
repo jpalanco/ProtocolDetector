@@ -166,7 +166,7 @@ def analyze_pcap(options):
     for ts, buf in pcap:
         results = perform_check(buf, options )
         if results is not None:
-            print results
+            print(results)
 
 def analyze_interface(options):
     iface = options['iface']
