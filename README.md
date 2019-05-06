@@ -53,7 +53,7 @@ options = { 'mode': 'default',
 
 for ts, buf in pcap:
         results = perform_check(buf, options )
-        print results
+        print(results)
 ```
 
 

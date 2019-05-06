@@ -1,4 +1,4 @@
 pcapy==0.11.1
 dpkt==1.9.1
-yara-python==3.4.0
+yara-python==3.10.0
 IPy==0.83
