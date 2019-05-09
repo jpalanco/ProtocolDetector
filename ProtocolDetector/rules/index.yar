@@ -13,4 +13,5 @@ include "./njrat.yar"
 include "./teamviewer.yar"
 include "./vnc.yar"
 include "./tftp.yar"
+include "./ramnit.yar"
 
