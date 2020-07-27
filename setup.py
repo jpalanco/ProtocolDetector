@@ -3,8 +3,10 @@ from setuptools import setup, find_packages
 from pip._internal.req import parse_requirements
 
 install_reqs = parse_requirements("requirements.txt", session=False)
-reqs = [str(ir.req) for ir in install_reqs]
-
+try:
+    reqs = [str(ir.req) for ir in install_reqs]
+except:
+    reqs = [str(ir.requirement) for ir in install_reqs]
 
 setup(
     name='ProtocolDetector',
